@@ -5,6 +5,11 @@ public class StartMenuController : MonoBehaviour
 {
     public void OnStartClick()
     {
+        SceneManager.LoadScene("Text Scene");
+    }
+
+    public void OnStartClickText()
+    {
         SceneManager.LoadScene("Test Level");
     }
 
