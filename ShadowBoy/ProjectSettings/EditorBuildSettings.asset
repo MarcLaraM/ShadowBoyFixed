@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/Scenes/StartStop.unity
     guid: bceeff13d00017d4b8d076cd5b59b7e8
   - enabled: 1
+    path: Assets/Scenes/Test Level.unity
+    guid: 955c2b49a7c63464a91a3a5f299682a5
+  - enabled: 0
     path: Assets/Scenes/Nivel 1.unity
     guid: eece32631ce6dc843a0ae3e74b9fce5c
   - enabled: 0

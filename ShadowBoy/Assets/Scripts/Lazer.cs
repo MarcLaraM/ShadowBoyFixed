@@ -14,14 +14,14 @@ public class Lazer : MonoBehaviour
     {
         if (isActivated)
         {
-            if (timeTilSpawn <= 0)
+            if (startTimeTilSpawn <= 0)
             {
                 Instantiate(lazer, whereToSpawn.position, whereToSpawn.rotation);
                 timeTilSpawn = startTimeTilSpawn;
             }
             else
             {
-                timeTilSpawn -= Time.deltaTime;
+                startTimeTilSpawn -= Time.deltaTime;
             }
         }
             

@@ -2,48 +2,59 @@ using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.UIElements;
 
 public class LightHazard : MonoBehaviour
 {
-    public int damagePerSecond = 5;
-    public float damageInterval = 0.5f; // Cada cuánto aplica daño
+    public int damagePerSecond;
+    public float damageInterval;
     private float nextDamageTime;
     private bool playerInTrigger = false;
     private HealthSystem currentHealth;
-    public float blinkInterval = 1.0f;
-    public bool startOn = true;
     private Light2D light2D;
     private PolygonCollider2D polygonCollider;
+    public bool blink = true;
+
+    private float blinkTimer;
+    public float blinkInterval = 1f;
+    public bool isLightOn = true;
 
     private void Start()
     {
         light2D = GetComponent<Light2D>();
         polygonCollider = GetComponent<PolygonCollider2D>();
+        blinkTimer = blinkInterval;
 
-        if(light2D != null)
-        {
-            light2D.enabled = startOn;
-        }
-        if(polygonCollider != null)
-        {
-            polygonCollider.enabled = startOn;
-        }
-        StartCoroutine(BlinkLight());
     }
 
-    private IEnumerator BlinkLight()
+    void Update()
     {
-        while (true)
+        if (playerInTrigger && Time.time >= nextDamageTime && currentHealth != null)
         {
-            if (light2D != null)
+            currentHealth.TakeDamage(damagePerSecond);
+            nextDamageTime = Time.time + damageInterval;
+        }
+        if (blink)
+        {
+            blinkTimer -= Time.deltaTime;
+            if (blinkTimer <= 0)
             {
-                light2D.enabled = !light2D.enabled;
+                isLightOn = !isLightOn;
+                BlinkLight(isLightOn);
+                blinkTimer = blinkInterval;
             }
-            if (polygonCollider != null)
-            {
-                polygonCollider.enabled = !polygonCollider.enabled;
-            }
-            yield return new WaitForSeconds(blinkInterval);
+        }
+    }
+
+    private void BlinkLight(bool state)
+    {
+        if (light2D != null)
+        {
+            light2D.enabled = state;
+        }
+        if (polygonCollider != null)
+        {
+            polygonCollider.enabled = state;
         }
     }
 
@@ -60,15 +71,6 @@ public class LightHazard : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             playerInTrigger = false;
-        }
-    }
-    
-    void Update()
-    {
-        if (playerInTrigger && Time.time >= nextDamageTime && currentHealth != null)
-        {
-            currentHealth.TakeDamage(damagePerSecond);
-            nextDamageTime = Time.time + damageInterval;
         }
     }
 }
