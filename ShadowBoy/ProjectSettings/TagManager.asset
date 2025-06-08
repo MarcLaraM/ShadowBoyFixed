@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 3
+  tags:
+  - Moving Platform
+  - Floor
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - Player
+  - Water
+  - UI
+  - Ground
+  - Wall
+  - Moving Platform
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Lights
+    uniqueID: 3097165587
+    locked: 0
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: Plataforma movil
+    uniqueID: 1276789429
+    locked: 0
+  - name: Background
+    uniqueID: 158983387
+    locked: 0
+  - name: Player
+    uniqueID: 3651951817
+    locked: 0
+  - name: Foreground
+    uniqueID: 3813939285
+    locked: 0
+  - name: Map
+    uniqueID: 1291042323
+    locked: 0
+  - name: Lights visibles
+    uniqueID: 574074247
+    locked: 0
+  m_RenderingLayers:
+  - Default
