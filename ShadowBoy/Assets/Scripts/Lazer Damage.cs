@@ -11,6 +11,7 @@ public class LazerDamage : MonoBehaviour
     void Update()
     {
          lazer.SetActive(lightOn);
+
     }
     public bool IsActive()
     {

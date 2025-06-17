@@ -19,7 +19,7 @@ public class PlatformMoving : MonoBehaviour
 
         if (moveSpots == null || moveSpots.Length == 0)
         {
-            enabled = false;
+            isActivated = false;
             return;
         }
     }
