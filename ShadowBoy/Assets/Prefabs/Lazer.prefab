@@ -163,4 +163,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lazer: {fileID: 6552844808265145981}
   lightOn: 1
-  damagePerSecond: 25
+  damagePerSecond: 50
