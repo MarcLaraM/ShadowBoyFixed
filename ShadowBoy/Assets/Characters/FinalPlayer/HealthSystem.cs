@@ -10,7 +10,7 @@ public class HealthSystem : MonoBehaviour
     public int currentHealth;
 
     [Header("Dead")]
-    MovementPlayerImproved movementPlayerImproved = new MovementPlayerImproved();
+    private MovementPlayerImproved movementPlayerImproved;
     public bool isDead = false;
     public Animator animator;
 
@@ -31,6 +31,7 @@ public class HealthSystem : MonoBehaviour
     {
         currentHealth = maxHealth;
         StartCoroutine(CheckForLightDamage());
+        movementPlayerImproved = GetComponent<MovementPlayerImproved>();
     }
 
 
@@ -110,6 +111,7 @@ public class HealthSystem : MonoBehaviour
         isDead = true;
         animator.SetBool("IsDead", true);
         GetComponent<MovementPlayerImproved>().isDead = true;
+        movementPlayerImproved.enabled = false;
         FindAnyObjectByType<GameOver>().ShowGameOver();
     }
 
