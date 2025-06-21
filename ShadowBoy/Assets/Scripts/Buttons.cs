@@ -14,6 +14,7 @@ public class Buttons : MonoBehaviour
     public PlatformMoving[] platforms;
     public StopZone[] stopzones;
     private Button button;
+    public GameObject[] invisibleWalls;    
 
     private void Start()
     {
@@ -43,6 +44,7 @@ public class Buttons : MonoBehaviour
             ShutDownLazers();
             ActivateElevators();
             DeleteStopZones();
+            DesactiveWalls();
         }
     }
     void ToggleLights()
@@ -82,6 +84,14 @@ public class Buttons : MonoBehaviour
         foreach (StopZone stopZone in stopzones)
         {
             stopZone.isActivated = false;
+        }
+    }
+
+    void DesactiveWalls()
+    {
+        foreach(GameObject wall in invisibleWalls)
+        {
+            wall.SetActive(false);
         }
     }
 }

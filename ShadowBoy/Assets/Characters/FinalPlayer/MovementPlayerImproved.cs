@@ -39,6 +39,9 @@ public class MovementPlayerImproved : MonoBehaviour
     private Vector2 _lastDashDir;
     private bool _isDashAttacking;
 
+    //Animator
+    public Animator animator { get; private set; }  
+
     #endregion
 
     #region INPUT PARAMETERS
@@ -75,6 +78,7 @@ public class MovementPlayerImproved : MonoBehaviour
     private void Awake()
     {
         RB = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
     }
 
     private void Start()
@@ -257,6 +261,10 @@ public class MovementPlayerImproved : MonoBehaviour
         {
             SetGravityScale(0);
         }
+        #endregion
+
+        #region Animations
+        UpdateAnimations();
         #endregion
     }
 
@@ -568,4 +576,16 @@ public class MovementPlayerImproved : MonoBehaviour
         Gizmos.DrawWireCube(_backWallCheckPoint.position, _wallCheckSize);
     }
     #endregion
+
+    #region Animations
+
+    private void UpdateAnimations()
+    {
+
+        animator.SetFloat("Run", Mathf.Abs(RB.linearVelocityX));
+
+        animator.SetFloat("yVelocity", RB.linearVelocityY);
+    }
+    #endregion
+
 }
