@@ -581,10 +581,16 @@ public class MovementPlayerImproved : MonoBehaviour
 
     private void UpdateAnimations()
     {
+        bool isGrounded = LastOnGroundTime > 0;
+
+        animator.SetBool("isGrounded", isGrounded);
 
         animator.SetFloat("Run", Mathf.Abs(RB.linearVelocityX));
 
         animator.SetFloat("yVelocity", RB.linearVelocityY);
+
+        animator.SetBool("isJumping", !isGrounded && RB.linearVelocityY > 0.1 && IsJumping);
+        animator.SetBool("isFalling", !isGrounded && RB.linearVelocityY < -0.1f && !IsJumping);
     }
     #endregion
 
