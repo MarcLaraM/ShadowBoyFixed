@@ -53877,6 +53877,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5720674774796753197, guid: f72cf2b11df308c4e90f50b037d9c1cc, type: 3}
+      propertyPath: startWaitTime
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5720674774796753197, guid: f72cf2b11df308c4e90f50b037d9c1cc, type: 3}
       propertyPath: moveSpots.Array.size
       value: 1
       objectReference: {fileID: 0}
