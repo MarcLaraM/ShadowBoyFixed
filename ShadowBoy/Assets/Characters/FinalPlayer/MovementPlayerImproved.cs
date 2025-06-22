@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using Unity.VisualScripting;
 
 public class MovementPlayerImproved : MonoBehaviour
 {
@@ -15,7 +16,6 @@ public class MovementPlayerImproved : MonoBehaviour
     //but can only be privately written to.
     public bool IsFacingRight { get; private set; }
     public bool IsJumping { get; private set; }
-    public bool IsWallJumping { get; private set; }
     public bool IsDashing { get; private set; }
     public bool IsSliding { get; private set; }
 
@@ -29,10 +29,6 @@ public class MovementPlayerImproved : MonoBehaviour
     private bool _isJumpCut;
     private bool _isJumpFalling;
 
-    //Wall Jump
-    private float _wallJumpStartTime;
-    private int _lastWallJumpDir;
-
     //Dash
     private int _dashesLeft;
     private bool _dashRefilling;
@@ -40,7 +36,7 @@ public class MovementPlayerImproved : MonoBehaviour
     private bool _isDashAttacking;
 
     //Animator
-    public Animator animator { get; private set; }  
+    public Animator animator { get; private set; }
 
     #endregion
 
@@ -72,6 +68,7 @@ public class MovementPlayerImproved : MonoBehaviour
     private PlatformMoving currentPlatform;
     private bool playerOnMovingPlatform = false;
     private Vector2 smoothDampVelocityRef;
+    public bool isActivated = true;
 
     public bool isDead = false;
 
@@ -90,6 +87,7 @@ public class MovementPlayerImproved : MonoBehaviour
     private void Update()
     {
         if (isDead) return;
+        if (isActivated == false) return;
         #region TIMERS
         LastOnGroundTime -= Time.deltaTime;
         LastOnWallTime -= Time.deltaTime;
@@ -127,22 +125,22 @@ public class MovementPlayerImproved : MonoBehaviour
         if (!IsDashing && !IsJumping)
         {
             //Ground Check
-            if (Physics2D.OverlapBox(_groundCheckPoint.position, _groundCheckSize, 0, _groundLayer) && !IsJumping) 
+            if (Physics2D.OverlapBox(_groundCheckPoint.position, _groundCheckSize, 0, _groundLayer) && !IsJumping)
             {
-                LastOnGroundTime = Data.coyoteTime; 
+                LastOnGroundTime = Data.coyoteTime;
             }
 
             //Right Wall Check
             if (((Physics2D.OverlapBox(_frontWallCheckPoint.position, _wallCheckSize, 0, _groundLayer) && IsFacingRight)
-                    || (Physics2D.OverlapBox(_backWallCheckPoint.position, _wallCheckSize, 0, _groundLayer) && !IsFacingRight)) && !IsWallJumping)
+                    || (Physics2D.OverlapBox(_backWallCheckPoint.position, _wallCheckSize, 0, _groundLayer) && !IsFacingRight)))
                 LastOnWallRightTime = Data.coyoteTime;
 
             //Right Wall Check
             if (((Physics2D.OverlapBox(_frontWallCheckPoint.position, _wallCheckSize, 0, _groundLayer) && !IsFacingRight)
-                || (Physics2D.OverlapBox(_backWallCheckPoint.position, _wallCheckSize, 0, _groundLayer) && IsFacingRight)) && !IsWallJumping)
+                || (Physics2D.OverlapBox(_backWallCheckPoint.position, _wallCheckSize, 0, _groundLayer) && IsFacingRight)))
                 LastOnWallLeftTime = Data.coyoteTime;
 
-            
+
             LastOnWallTime = Mathf.Max(LastOnWallLeftTime, LastOnWallRightTime);
         }
         #endregion
@@ -151,17 +149,9 @@ public class MovementPlayerImproved : MonoBehaviour
         if (IsJumping && RB.linearVelocity.y < 0)
         {
             IsJumping = false;
-
-            if (!IsWallJumping)
-                _isJumpFalling = true;
         }
 
-        if (IsWallJumping && Time.time - _wallJumpStartTime > Data.wallJumpTime)
-        {
-            IsWallJumping = false;
-        }
-
-        if (LastOnGroundTime > 0 && !IsJumping && !IsWallJumping)
+        if (LastOnGroundTime > 0 && !IsJumping)
         {
             _isJumpCut = false;
 
@@ -175,23 +165,9 @@ public class MovementPlayerImproved : MonoBehaviour
             if (CanJump() && LastPressedJumpTime > 0)
             {
                 IsJumping = true;
-                IsWallJumping = false;
                 _isJumpCut = false;
                 _isJumpFalling = false;
                 Jump();
-            }
-            //WALL JUMP
-            else if (CanWallJump() && LastPressedJumpTime > 0)
-            {
-                IsWallJumping = true;
-                IsJumping = false;
-                _isJumpCut = false;
-                _isJumpFalling = false;
-
-                _wallJumpStartTime = Time.time;
-                _lastWallJumpDir = (LastOnWallRightTime > 0) ? -1 : 1;
-
-                WallJump(_lastWallJumpDir);
             }
         }
         #endregion
@@ -199,10 +175,10 @@ public class MovementPlayerImproved : MonoBehaviour
         #region DASH CHECKS
         if (CanDash() && LastPressedDashTime > 0)
         {
-            
+
             Sleep(Data.dashSleepTime);
 
-          
+
             if (_moveInput != Vector2.zero)
                 _lastDashDir = _moveInput;
             else
@@ -212,7 +188,6 @@ public class MovementPlayerImproved : MonoBehaviour
 
             IsDashing = true;
             IsJumping = false;
-            IsWallJumping = false;
             _isJumpCut = false;
 
             StartCoroutine(nameof(StartDash), _lastDashDir);
@@ -243,7 +218,7 @@ public class MovementPlayerImproved : MonoBehaviour
                 SetGravityScale(Data.gravityScale * Data.jumpCutGravityMult);
                 RB.linearVelocity = new Vector2(RB.linearVelocity.x, Mathf.Max(RB.linearVelocity.y, -Data.maxFallSpeed));
             }
-            else if ((IsJumping || IsWallJumping || _isJumpFalling) && Mathf.Abs(RB.linearVelocity.y) < Data.jumpHangTimeThreshold)
+            else if ((IsJumping || _isJumpFalling) && Mathf.Abs(RB.linearVelocity.y) < Data.jumpHangTimeThreshold)
             {
                 SetGravityScale(Data.gravityScale * Data.jumpHangGravityMult);
             }
@@ -274,13 +249,11 @@ public class MovementPlayerImproved : MonoBehaviour
         {
             RB.linearVelocity = Vector2.zero;
         }
+
         //Handle Run
         if (!IsDashing)
         {
-            if (IsWallJumping)
-                Run(Data.wallJumpRunLerp);
-            else
-                Run(1);
+            Run(1);
         }
         else if (_isDashAttacking)
         {
@@ -300,7 +273,7 @@ public class MovementPlayerImproved : MonoBehaviour
 
     public void OnJumpUpInput()
     {
-        if (CanJumpCut() || CanWallJumpCut())
+        if (CanJumpCut())
             _isJumpCut = true;
     }
 
@@ -324,7 +297,7 @@ public class MovementPlayerImproved : MonoBehaviour
     private IEnumerator PerformSleep(float duration)
     {
         Time.timeScale = 0;
-        yield return new WaitForSecondsRealtime(duration); 
+        yield return new WaitForSecondsRealtime(duration);
         Time.timeScale = 1;
     }
     #endregion
@@ -333,42 +306,46 @@ public class MovementPlayerImproved : MonoBehaviour
     #region RUN METHODS
     private void Run(float lerpAmount)
     {
-        
-        float targetSpeed = _moveInput.x * Data.runMaxSpeed;
-        targetSpeed = Mathf.Lerp(RB.linearVelocity.x, targetSpeed, lerpAmount);
-
-        #region Calculate AccelRate
-        float accelRate;
-
-       
-        if (LastOnGroundTime > 0)
-            accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? Data.runAccelAmount : Data.runDeccelAmount;
-        else
-            accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? Data.runAccelAmount * Data.accelInAir : Data.runDeccelAmount * Data.deccelInAir;
-        #endregion
-
-        #region Add Bonus Jump Apex Acceleration
-        if ((IsJumping || IsWallJumping || _isJumpFalling) && Mathf.Abs(RB.linearVelocity.y) < Data.jumpHangTimeThreshold)
+        if (MovingPlatformAndMoving() == false)
         {
-            accelRate *= Data.jumpHangAccelerationMult;
-            targetSpeed *= Data.jumpHangMaxSpeedMult;
+            float targetSpeed = _moveInput.x * Data.runMaxSpeed;
+            targetSpeed = Mathf.Lerp(RB.linearVelocity.x, targetSpeed, lerpAmount);
+
+            #region Calculate AccelRate
+            float accelRate;
+
+
+            if (LastOnGroundTime > 0)
+                accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? Data.runAccelAmount : Data.runDeccelAmount;
+            else
+                accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? Data.runAccelAmount * Data.accelInAir : Data.runDeccelAmount * Data.deccelInAir;
+            #endregion
+
+            #region Add Bonus Jump Apex Acceleration
+            if ((IsJumping || _isJumpFalling) && Mathf.Abs(RB.linearVelocity.y) < Data.jumpHangTimeThreshold)
+            {
+                accelRate *= Data.jumpHangAccelerationMult;
+                targetSpeed *= Data.jumpHangMaxSpeedMult;
+            }
+            #endregion
+
+            #region Conserve Momentum
+            if (Data.doConserveMomentum && Mathf.Abs(RB.linearVelocity.x) > Mathf.Abs(targetSpeed) && Mathf.Sign(RB.linearVelocity.x) == Mathf.Sign(targetSpeed) && Mathf.Abs(targetSpeed) > 0.01f && LastOnGroundTime < 0)
+            {
+
+                accelRate = 0;
+            }
+            #endregion
+            float speedDif = targetSpeed - RB.linearVelocity.x;
+
+
+            float movement = speedDif * accelRate;
+
+
+            RB.AddForce(movement * Vector2.right, ForceMode2D.Force);
         }
-        #endregion
 
-        #region Conserve Momentum
-        if (Data.doConserveMomentum && Mathf.Abs(RB.linearVelocity.x) > Mathf.Abs(targetSpeed) && Mathf.Sign(RB.linearVelocity.x) == Mathf.Sign(targetSpeed) && Mathf.Abs(targetSpeed) > 0.01f && LastOnGroundTime < 0)
-        {
-           
-            accelRate = 0;
-        }
-        #endregion
-        float speedDif = targetSpeed - RB.linearVelocity.x;
-      
 
-        float movement = speedDif * accelRate;
-
-      
-        RB.AddForce(movement * Vector2.right, ForceMode2D.Force);
     }
 
     private void Turn()
@@ -393,27 +370,6 @@ public class MovementPlayerImproved : MonoBehaviour
             force -= RB.linearVelocity.y;
 
         RB.AddForce(Vector2.up * force, ForceMode2D.Impulse);
-        #endregion
-    }
-
-    private void WallJump(int dir)
-    {
-        LastPressedJumpTime = 0;
-        LastOnGroundTime = 0;
-        LastOnWallRightTime = 0;
-        LastOnWallLeftTime = 0;
-
-        #region Perform Wall Jump
-        Vector2 force = new Vector2(Data.wallJumpForce.x, Data.wallJumpForce.y);
-        force.x *= dir;
-
-        if (Mathf.Sign(RB.linearVelocity.x) != Mathf.Sign(force.x))
-            force.x -= RB.linearVelocity.x;
-
-        if (RB.linearVelocity.y < 0) 
-            force.y -= RB.linearVelocity.y;
-
-        RB.AddForce(force, ForceMode2D.Impulse);
         #endregion
     }
     #endregion
@@ -477,7 +433,6 @@ public class MovementPlayerImproved : MonoBehaviour
 
     #region  ASCENSORES
 
-    
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Moving Platform"))
@@ -515,6 +470,10 @@ public class MovementPlayerImproved : MonoBehaviour
     {
         currentPlatform = platform;
     }
+    private bool MovingPlatformAndMoving()
+    {
+        return playerOnMovingPlatform && currentPlatform != null && currentPlatform.CurrentVelocity.magnitude > 0.01f;
+    }
     #endregion
 
     #region CHECK METHODS
@@ -526,29 +485,18 @@ public class MovementPlayerImproved : MonoBehaviour
 
     private bool CanJump()
     {
-        return LastOnGroundTime > 0 && !IsJumping && !playerOnMovingPlatform;
-    }
 
-
-    private bool CanWallJump()
-    {
-        return LastPressedJumpTime > 0 && LastOnWallTime > 0 && LastOnGroundTime <= 0 && (!IsWallJumping ||
-             (LastOnWallRightTime > 0 && _lastWallJumpDir == 1) || (LastOnWallLeftTime > 0 && _lastWallJumpDir == -1));
+        return LastOnGroundTime > 0 && !IsJumping && !MovingPlatformAndMoving();
     }
 
     private bool CanJumpCut()
     {
-        return IsJumping && RB.linearVelocity.y > 0;
-    }
-
-    private bool CanWallJumpCut()
-    {
-        return IsWallJumping && RB.linearVelocity.y > 0;
+        return IsJumping && RB.linearVelocity.y > 0 && !MovingPlatformAndMoving();
     }
 
     private bool CanDash()
     {
-        if (!IsDashing && _dashesLeft < Data.dashAmount && LastOnGroundTime > 0 && !_dashRefilling)
+        if (!IsDashing && _dashesLeft < Data.dashAmount && LastOnGroundTime > 0 && !_dashRefilling && !MovingPlatformAndMoving())
         {
             StartCoroutine(nameof(RefillDash), 1);
         }
@@ -558,7 +506,7 @@ public class MovementPlayerImproved : MonoBehaviour
 
     public bool CanSlide()
     {
-        if (LastOnWallTime > 0 && !IsJumping && !IsWallJumping && !IsDashing && LastOnGroundTime <= 0)
+        if (LastOnWallTime > 0 && !IsJumping && !IsDashing && LastOnGroundTime <= 0 && !MovingPlatformAndMoving())
             return true;
         else
             return false;

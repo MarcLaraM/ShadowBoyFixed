@@ -1,7 +1,8 @@
+using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 public class Buttons : MonoBehaviour
 {
@@ -13,13 +14,19 @@ public class Buttons : MonoBehaviour
     public Lazer[] lazers;
     public PlatformMoving[] platforms;
     public StopZone[] stopzones;
-    private Button button;
-    public GameObject[] invisibleWalls;    
-
+    private Buttons button;
+    public GameObject[] invisibleWalls;
+    public Sprite spriteOriginal;
+    public Sprite sprite2;
+    private SpriteRenderer spriteRenderer;
+    private bool using2 = false;
     private void Start()
     {
-        button = GetComponent<Button>();
-        button.onClick.AddListener(ToggleLights);
+        button = GetComponent<Buttons>();
+        //button.onClick.AddListener(ToggleLights);
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        spriteRenderer.sprite = spriteOriginal;
+
     }
     private void OnTriggerEnter2D(Collider2D other)
     {
@@ -45,6 +52,7 @@ public class Buttons : MonoBehaviour
             ActivateElevators();
             DeleteStopZones();
             DesactiveWalls();
+            ChangeImage();
         }
     }
     void ToggleLights()
@@ -92,6 +100,26 @@ public class Buttons : MonoBehaviour
         foreach(GameObject wall in invisibleWalls)
         {
             wall.SetActive(false);
+        }
+    }
+    public void ChangeImage()
+    {
+        if (using2)
+        {
+            spriteRenderer.sprite = spriteOriginal;
+            spriteRenderer.sortingLayerName = "Background";
+            spriteRenderer.sortingOrder = 0;
+            spriteRenderer.
+            Debug.Log("Using Sprite 1");
+            using2 = false;
+        }
+        else
+        {
+            spriteRenderer.sprite = sprite2;
+            spriteRenderer.sortingLayerName = "Background";
+            spriteRenderer.sortingOrder = 0;
+            Debug.Log("Using Sprite 2");
+            using2 = true;
         }
     }
 }

@@ -33,6 +33,12 @@ public class PlatformMoving : MonoBehaviour
         {
             if (!playerOnPlatform) return;
 
+            if (waitTime > 0)
+            {
+                waitTime -= Time.deltaTime;
+                return;
+            }
+
             if (moveSpots == null || moveSpots.Length == 0 || currentWaypointIndex < 0 || currentWaypointIndex >= moveSpots.Length)
             {
                 return;
@@ -40,22 +46,15 @@ public class PlatformMoving : MonoBehaviour
             transform.position = Vector2.MoveTowards(transform.position, moveSpots[currentWaypointIndex].position, speed * Time.deltaTime);
             if (Vector2.Distance(transform.position, moveSpots[currentWaypointIndex].position) < 0.1f)
             {
-                if (waitTime <= 0)
+                if (currentWaypointIndex < moveSpots.Length - 1)
                 {
-                    if (currentWaypointIndex < moveSpots.Length - 1)
-                    {
-                        currentWaypointIndex++;
-                    }
+                    currentWaypointIndex++;
+                }
 
-                    waitTime = startWaitTime;
-                }
-                else
-                {
-                    waitTime -= Time.deltaTime;
-                }
             }
         }
     }
+
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -66,13 +65,13 @@ public class PlatformMoving : MonoBehaviour
                 collision.collider.transform.SetParent(transform);
                 MovementPlayerImproved player = collision.collider.GetComponent<MovementPlayerImproved>();
                 playerOnPlatform = true;
+                waitTime = startWaitTime;
                 if (player != null)
                 {
                     player.SetPlayerOnMovingPlatform(true);
                     player.SetCurrentMovingPlatform(this);
                 }
             }
-
         }
     }
     private void OnCollisionExit2D(Collision2D collision)
