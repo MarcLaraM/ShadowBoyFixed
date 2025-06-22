@@ -10,7 +10,7 @@ public class StartMenuController : MonoBehaviour
 
     public void OnStartClickText()
     {
-        SceneManager.LoadScene("Test Level");
+        SceneManager.LoadScene("Level 1");
     }
 
     public void OnExitScene()

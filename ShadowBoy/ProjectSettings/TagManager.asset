@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Moving Platform
   - Floor
+  - Audio
   layers:
   - Default
   - TransparentFX

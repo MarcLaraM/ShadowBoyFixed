@@ -23,8 +23,8 @@ public class GameOver : MonoBehaviour
             gameOverPanel.SetActive(true);
             Time.timeScale = 0;
         }
-        
-        
+
+
     }
 
     public void RestartLevel()

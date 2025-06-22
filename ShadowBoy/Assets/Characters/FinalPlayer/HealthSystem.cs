@@ -13,6 +13,7 @@ public class HealthSystem : MonoBehaviour
     private MovementPlayerImproved movementPlayerImproved;
     public bool isDead = false;
     public Animator animator;
+    AudioManager audioManager;
 
     [Header("Light Detection")]
     public float checkInterval = 0.2f;
@@ -26,7 +27,10 @@ public class HealthSystem : MonoBehaviour
 
     private Coroutine flashCoroutine;
 
-
+    private void Awake()
+    {
+        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
+    }
     private void Start()
     {
         currentHealth = maxHealth;
@@ -78,6 +82,7 @@ public class HealthSystem : MonoBehaviour
     {
         currentHealth -= Mathf.RoundToInt(damage);
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);   // Hace que no baje de 0 ni suba de 100 de vida
+        audioManager.PlaySFX(audioManager.damage);
 
         if (flashCoroutine != null)
         {
@@ -113,6 +118,8 @@ public class HealthSystem : MonoBehaviour
         GetComponent<MovementPlayerImproved>().isDead = true;
         movementPlayerImproved.enabled = false;
         FindAnyObjectByType<GameOver>().ShowGameOver();
+        audioManager.PlaySFX(audioManager.death);
+
     }
 
     public void ResetHealth()
