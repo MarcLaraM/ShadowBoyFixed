@@ -23,7 +23,6 @@ public class Buttons : MonoBehaviour
     private void Start()
     {
         button = GetComponent<Buttons>();
-        //button.onClick.AddListener(ToggleLights);
         spriteRenderer = GetComponent<SpriteRenderer>();
         spriteRenderer.sprite = spriteOriginal;
 
@@ -109,8 +108,6 @@ public class Buttons : MonoBehaviour
             spriteRenderer.sprite = spriteOriginal;
             spriteRenderer.sortingLayerName = "Background";
             spriteRenderer.sortingOrder = 0;
-            spriteRenderer.
-            Debug.Log("Using Sprite 1");
             using2 = false;
         }
         else
@@ -118,7 +115,6 @@ public class Buttons : MonoBehaviour
             spriteRenderer.sprite = sprite2;
             spriteRenderer.sortingLayerName = "Background";
             spriteRenderer.sortingOrder = 0;
-            Debug.Log("Using Sprite 2");
             using2 = true;
         }
     }
